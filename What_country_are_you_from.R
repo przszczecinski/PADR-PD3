@@ -1,12 +1,12 @@
 # Shift + Alt + K => keyboard shortcuts
 
-setwd("C:/Users/Przemek/Desktop/Przemek/PW/PADR/PD3/2. Prepared Data/Politics")
+setwd("2. Prepared Data/Chrisitianity")
 
-Users.politics.XML <- xmlParse("Users.xml")
-Users.politics <- XML:::xmlAttrsToDataFrame(getNodeSet(Users.politics.XML, path='//row'))
+Users.christianity.XML <- xmlParse("Users.xml")
+Users.christianity <- XML:::xmlAttrsToDataFrame(getNodeSet(Users.christianity.XML, path='//row'))
 
 # select the data set
-dataset <- Users.politics
+dataset <- Users.christianity
 
 tmp <- dataset %>% select(Location)
 
@@ -14,7 +14,7 @@ tmp <- dataset %>% select(Location)
 #### Main body ####
 ###################
 start.time <- Sys.time()
-  extended_check_result <- tmp %>% mutate(Country = lapply(Location, what_country_are_you_from_old))
+  extended_check_result <- tmp %>% mutate(Country = lapply(Location, what_country_are_you_from))
   extended_check_result_fixed <- extended_check_result %>% mutate(Country=lapply(Country, remove_mutliple_countries))
 end.time <- Sys.time()
 (end.time-start.time)
@@ -31,7 +31,10 @@ how_many_recognized_extended <- extended_check_result_fixed %>% filter(!is.na(Lo
 #### Checking if extended search is better than basic matching  ####
 ####################################################################
 
-cat(as.numeric(floor(how_many_recognized_extended/how_many_recognized_basic*100)), "%", sep="")
+cat("Countries recognized using extended search to basic search ratio: ", 
+    as.numeric(floor(how_many_recognized_extended/how_many_recognized_basic*100)), 
+    "%", 
+    sep="")
 
 cat("Percent of recognized countries, as Location was given, using only Country matching: ", 
     as.numeric(floor(how_many_recognized_basic/given_Location_count*100)), 
@@ -84,74 +87,6 @@ what_country_are_you_from_basic <- function(text){
       return(NA)
     return(countries[is.country]) 
   }
-}
-
-what_country_are_you_from_old <- function(text){
-  if(is.character(text)){
-    if(is.na(text)==FALSE){
-      strvec <- trimws(unlist(strsplit(text, split=",")))
-      # if country name or country abbreviation exists in text
-      is.country <- c(strvec %in% codelist$country.name.en)
-      is.country.abb <- c(strvec %in% codelist$cowc)
-      if(all(is.country==FALSE)){
-        if(all(is.country.abb==FALSE)){
-          # in case comma was not used to separate country
-          strvec2 <- trimws(unlist(strsplit(text, split=" ")))
-          is.country2 <- c(strvec2 %in% codelist$country.name.en)
-          is.country.abb2 <- c(strvec2 %in% codelist$cowc)
-          if(all(is.country2==FALSE)){ 
-            if(all(is.country.abb2==FALSE)){
-              # if country was not found
-              # checking if text contains names or abbreviations of USA states (quite common)
-              is.usa.state <- c(strvec %in% state.name)
-              is.usa.state.abb <- c(strvec %in% state.abb)
-              if(all(is.usa.state==FALSE) & all(is.usa.state.abb==FALSE)){
-                # checking if text contains city name and can be clearly identified
-                is.city <- c(strvec %in% world.cities$name)
-                if(all_cpp(is.city, FALSE))
-                  return(NA)
-                else {
-                  temp <- world.cities %>% 
-                          filter(name==strvec[is.city]) %>%
-                          select(country.etc)
-                  is.city.in.how.many.countries <- as.integer(count(temp))
-                  if(is.city.in.how.many.countries <= 1){
-                    country <- as.character(temp)
-                    # because only USA and UK have abbreviations in world.cities
-                    if(country=="USA")
-                      country <- "United States"
-                    else if(country=="UK")
-                      country <- "United Kingdom"
-                    return(country)
-                  }
-                  # if found city cannot be clearly identified,
-                  # i.e. occurs in more than one country
-                  else return(NA)
-                }
-              }
-              else return("United States")
-            }
-            else {
-              country <- as.character(codelist %>%
-                                        filter(cowc==strvec2[is.country.abb2==TRUE]) %>%
-                                        select(country.name.en))
-              return(country)
-            }
-          }
-          else return(strvec2[is.country2==TRUE])
-        }
-        else {
-          country <- as.character(codelist %>%
-                                  filter(cowc==strvec[is.country.abb==TRUE]) %>%
-                                  select(country.name.en))
-          return(country)
-        }
-      }
-      else return(strvec[is.country==TRUE])
-    }
-    else return(NA)
-  }
-  else return(NA)
 }
 
 what_country_are_you_from <- function(text){
@@ -209,19 +144,21 @@ what_country_are_you_from <- function(text){
             is.city <- c(strvec %in% world.cities$name)
             # if city name was found 
             if(any_cpp(is.city, TRUE)){
-              temp <- world.cities %>% 
+              suppressWarnings(
+              temp <- world.cities %>%
                       filter(name==strvec[is.city]) %>%
                       select(country.etc)
+              )
               is.city.in.how.many.countries <- as.integer(count(temp))
               # if there is only one city with specified name
               if(is.city.in.how.many.countries == 1){
                 country <- as.character(temp)
-              # world.cities has USA and UK, not United States and United Kingdom 
-              if(country=="USA")
-                country <- "United States"
-              else if(country=="UK")
-                country <- "United Kingdom"
-              return(country)
+                # world.cities has USA and UK, not United States and United Kingdom
+                if(country=="USA")
+                  country <- "United States"
+                else if(country=="UK")
+                  country <- "United Kingdom"
+                return(country)
               }
             }
           }
@@ -230,13 +167,6 @@ what_country_are_you_from <- function(text){
     }
   }
   return(NA)
-}
-
-remove_mutliple_countries_old <- function(list_){
-  ### work-around function ###
-  # remove_mutliple_countries should be used on output from what_country_are_you_from
-  # to deal with cases, when mutliple countries were put into one column
-  lapply(list_, function(x){if(length(x)>1) return(NA) else return(x)})
 }
 
 remove_mutliple_countries <- function(text){
