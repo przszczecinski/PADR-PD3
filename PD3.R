@@ -29,10 +29,10 @@ options(stringsAsFactors = FALSE)
 #
 
 
-# DANE
+# DATA 
 
 # Christianity
-setwd("C:/Users/Przemek/Desktop/Przemek/PW/PADR/PD3/2. Prepared Data/Christianity")
+setwd("2. Prepared Data/Christianity")
 
 Posts.christianity.XML <- xmlParse("Posts.xml")
 Posts.christianity <- XML:::xmlAttrsToDataFrame(getNodeSet(Posts.christianity.XML, path='//row'))
@@ -40,8 +40,6 @@ Badges.christianity.XML <- xmlParse("Badges.xml")
 Badges.christianity <- XML:::xmlAttrsToDataFrame(getNodeSet(Badges.christianity.XML, path='//row'))
 Comments.christianity.XML <- xmlParse("Comments.xml")
 Comments.christianity <- XML:::xmlAttrsToDataFrame(getNodeSet(Comments.christianity.XML, path='//row'))
-PostHistory.christianity.XML <- xmlParse("PostHistory.xml")
-PostHistory.christianity <- XML:::xmlAttrsToDataFrame(getNodeSet(PostHistory.christianity.XML, path='//row'))
 PostLinks.christianity.XML <- xmlParse("PostLinks.xml")
 PostLinks.christianity <- XML:::xmlAttrsToDataFrame(getNodeSet(PostLinks.christianity.XML, path='//row'))
 Tags.christianity.XML <- xmlParse("Tags.xml")
@@ -90,18 +88,27 @@ text(bp, p.question$Count+p.answer$Count/2, labels=p.answer$Count, xpd=TRUE)
 box(bty="l")# to poprawić
 
 
-#####################################################
-##### Countries  #####
-#####################################################
+########################################################
+##### Countries where the most of posts come from  #####
+########################################################
 
+users <- Users.christianity
+posts <- Posts.christianity
 
+tmp <- users %>% 
+          mutate(Country = lapply(Location, what_country_are_you_from)) %>% 
+          mutate(Country  = lapply(Country, remove_mutliple_countries))
+
+data <- posts %>% 
+          left_join(tmp, by=c("OwnerUserId"="Id")) %>% 
+          select(ViewCount, Id, Location, Country)
 
 
 #####################################################
 ##### 
 #####################################################
 
-setwd("C:/Users/Przemek/Desktop/Przemek/PW/PADR/PD3/2. Prepared Data/Travel")
+setwd("2. Prepared Data/Travel")
 
 Posts.travel.XML <- xmlParse("Posts.xml")
 Posts.travel <- XML:::xmlAttrsToDataFrame(getNodeSet(Posts.travel.XML, path='//row'))
@@ -269,16 +276,16 @@ the_most_searched <- function(){
     server <- function(input, output) {
       
       Posts4<-reactive({
-        d<-input$type_year
-        l<-input$Amount
-        s<-Posts3 %>%
-          filter(Country != -1) %>%
-          group_by(Country, Year2) %>%
-          mutate(count=n()) %>%
-          filter(Year2==d) %>%
-          distinct(Country, count) %>%
-          arrange(desc(count)) 
-        z<-head(s, l)
+        d <- input$type_year
+        l <- input$Amount
+        s <- Posts3 %>%
+              filter(Country != -1) %>%
+              group_by(Country, Year2) %>%
+              mutate(count=n()) %>%
+              filter(Year2==d) %>%
+              distinct(Country, count) %>%
+              arrange(desc(count)) 
+        z <- head(s, l)
       })
       
       output$distplot <- renderPlot({
