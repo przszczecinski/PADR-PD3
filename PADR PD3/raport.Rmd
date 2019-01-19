@@ -1,0 +1,421 @@
+---
+title: "Raport - praca domowa nr 3."
+author: "Małgorzata Woźniak, Przemysław Szczeciński"
+date: "13 stycznia 2019"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(Encoding="UTF-8")
+```
+
+
+```{r funkcje, results="hide", echo=FALSE, include=FALSE}
+source("libraries.R")
+
+setwd("Prepared Data")
+
+# Christianity
+data <- read.csv("christianity_barplot_data.csv", stringsAsFactors = FALSE)
+data_map <- read.csv("christianity_map_data.csv", stringsAsFactors = FALSE)
+
+# Travel
+top <- read.csv("travel_most_searched_data.csv", stringsAsFactors = FALSE)
+top2 <- top %>% slice(1:40)
+
+Posts3 <- read.csv("travel_1_data.csv", stringsAsFactors = FALSE)
+
+# Politics
+sent <- read.csv("politics_sentiment_data.csv", stringsAsFactors = FALSE)
+sent1 <- read.csv("politics_sentiment_2_data.csv", stringsAsFactors = FALSE)
+
+# Islam
+islam_data <- read.csv("islam_barplot_data.csv", stringsAsFactors = FALSE)
+mydata <- read.csv("islam_data.csv", stringsAsFactors = FALSE)
+
+setwd('..')
+```
+
+## Generowanie danych
+
+Wygenerowanie danych potrzebych do odtworzenia wyników z niniejszej prezentacji zajmuje około 8-9 minut (na komputerze z 8 GB RAM-u, dyskiem SSD i procesorem Intel i5 z taktowaniem 2.8 do 3.3GHz w porywach). W tym czasie tworzone są potrzebne pliki CSV, a komputer zajada radośnie całą dostępną pamięć i próbuje usmażyć nasz procesor.
+
+## Christianity
+
+Pierwszym pytaniem, które sobie postawiliśmy było: *Czy postępująca laicyzacja społeczeństwa prowadzi do zmniejszania się liczby postów dotyczących chrześcijaństwa?* Pewien trend przedstawia poniższy wykres, obrazujący zmiany ilości postów na forum ```Christianity```.
+
+```{r christianity_barplot, echo=FALSE}
+bp <- barplot(t(as.matrix(data[2:3])),
+              beside = FALSE, 
+              space = 0.5, 
+              names.arg=data$Year,         
+              col=c("deepskyblue","red"), 
+              las=1,
+              legend=c("Questions", "Answers"),
+              main=sprintf('Number of posts in Christianity from %s to %s', 
+                           data$mindate[[1]], 
+                           data$maxdate[[1]]))
+text(bp, data$Count.question/2, labels = data$Count.question, xpd=TRUE)
+text(bp, data$Count.question + data$Count.answer/2, labels = data$Count.answer, xpd=TRUE)
+box(bty="l")
+```
+
+Z powyższego możemy wyciągnąć następujące wnioski: 
+
+- istotnie, zmniejszająca się liczba zapytań dotyczących chrześcijaństwa odzwierciedla współczesny styl życia oddalający ludzi od wiary w Boga,
+- coraz mniej ludzi szuka (i udziela) odpowiedzi dotyczących chrześcijaństwa na forum **Stack Exchange**.
+
+Jednocześnie zainteresowało nas, z jakiego kraju ludzie publikują najwięcej w tym temacie. Wyniki ukazuje poniższa lakoniczna mapa:
+
+```{r christianity_map, echo=FALSE}
+
+shinyApp(
+  ui = fluidPage(
+    leafletOutput("mymap", height = 1000)
+  ),
+  
+  server = function(input, output){
+    
+    data <- reactive({
+      df <- data_map 
+      df
+    })
+    max_count <- max(data_map$Count)
+
+    output$mymap <- renderLeaflet({
+      m <- leaflet(data = data() ) %>% 
+        addTiles() %>%
+        setView(lng=0, lat=0, zoom=1) %>%  
+        addCircleMarkers(lng = ~Long,
+                         lat = ~Lat,
+                         radius = ~Count/max_count*100,
+                         popup = paste("<b>", data()$Country, "</b>",
+                                       ", number of posts: ",
+                                       "<b>", data()$Count, "</b>",
+                                       sep=""))
+      m
+    })
+  }
+)
+```
+
+Dominujący charakter, jaki prezentują na tym forum Stany Zjednoczone może wynikać z bardziej ekspresyjnego i żywego sposoby podejścia Amerykanów do wiary, bądź też z faktu, że **Stack Exchange** jest serwisem powstałym właśnie w Stanach (sugeruje to, że w serwisach pokroju [elektroda.pl](https://www.elektroda.pl/) dominować będą posty polskich użytkowników).
+
+Największym problemem, z jakim zetknęliśmy się tworząc powyższą mapę, było wyekstrahowanie kraju, z którego pochodzą użytkownicy. Jako że użytkowników, którzy mają dane na temat lokalizacji, jest niecałe 50%, prezentowane przez nas dane tracą nieco na wartości. Jednakże staraliśmy się wycisnąć jak najwięcej z lokalizacji, które użytkownicy wprowadzili. Początkowo staraliśmy się znaleźć nazwy krajów (pobranych z ramki `codelist$country.name.en`) przy pomocy funkcji `stri_detect_fixed()` we wprowadzonych przez użytkowników ciągach znaków, uważanych przez niektórych za lokalizacje. W ten sposób dopasowaliśmy jedynie kraje do 52% użytkowników, mających niepuste lokalizacje. Nie zadowoliło nas to, więc stworzyliśmy funkcję `extract_countries()`, która w prosty, acz skuteczny sposób dopasowuje kraje, bazując nie tylko na nazwie państwa, ale też na miastach, stanach, skrótach, występujących w podanych lokalizacjach. W ten sposób uzyskaliśmy fantastyczny wynik, dopasowując kraje aż do 87%!!! użytkowników mających niepuste lokalizacje. Testy dotyczące naszej funkcji znajdują się w pliku `extract_country_with_tests.R`.
+
+
+## Islam
+
+W ostatnich kilku latach, zwłaszcza w Europie popularnym tematem stał się Islam. Niemały wkład miała w to niemiecka kanclerz Angela Merkel, która w 2015 roku przyczyniła się do "otwarcia granic" dla imigrantów z Afryki. W efekcie na stary kontynent przybyły miliony imigrantów, w dużej mierze wyznawców Islamu. Następstwem tego były liczne "incydenty", wynikające z odmienności kultur wyrosłych z tradycji chrześcijańskich i muzułmańskich. Zainteresowało nas, czy da się zaobserwować echa tych zjawisk na forum `Islam`.
+
+Ilości postów dotyczących Islamu prezentuje poniższy wykres, analogiczny do analizy `Christianity`.
+
+```{r islam_barplot, echo=FALSE}
+bp <- barplot(t(as.matrix(islam_data[2:3])),
+              beside = FALSE, 
+              space = 0.5, 
+              names.arg=islam_data$Year,         
+              col=c("deepskyblue","red"), 
+              las=1,
+              legend=c("Questions", "Answers"),
+              args.legend = list(x="topleft"),
+              main=sprintf('Number of posts in Christianity from %s to %s', 
+                           islam_data$mindate[[1]], 
+                           islam_data$maxdate[[1]]))
+text(bp, islam_data$Count.question/2, labels = islam_data$Count.question, xpd=TRUE)
+text(bp, islam_data$Count.question + islam_data$Count.answer/2, labels = islam_data$Count.answer, xpd=TRUE)
+box(bty="l")
+```
+
+Zaobserwować można wzrost liczności postów, od roku 2014, co jest zapewne powiązane ze wspomnianym kryzysem migracyjnym.
+
+Podobnie jak w serwisie `Christianity`, przeanalizowaliśmy też pochodzenie osób udzielających się na forum dotyczącym Islamu. Wyniki przedstawiliśmy na poniższej mapie.
+
+```{r islam_map, echo=FALSE}
+
+shinyApp(
+  ui = fluidPage(
+    titlePanel("Number of posts about Islam until"),
+
+    sliderInput(inputId = "year",
+                label="",
+                # label = "Choose a year",
+                value = 2012, min = 2011, max = 2018,
+                round = TRUE),
+
+    leafletOutput("mymap", height = 1000)
+  ),
+  
+  server = function(input, output){
+    
+    
+    data <- reactive({
+      df <- mydata %>% 
+              filter(Year <= input$year) %>%
+              group_by(Country, Long, Lat) %>% 
+              summarise(Count=n()) 
+      df
+    })
+    
+    max_count <- as.numeric(
+                    mydata %>% group_by(Country) %>% 
+                    summarise(Count=n()) %>%
+                    filter(Count==max(Count)) %>%
+                    select(Count))
+
+    output$mymap <- renderLeaflet({
+      m <- leaflet(data = data() ) %>% # creates map widget
+        addTiles() %>% # adds the default OpenStreet map tiles
+        setView(lng=0, lat=0, zoom=2) %>%  
+        addCircleMarkers(lng = ~Long,
+                         lat = ~Lat,
+                         radius = ~Count/max_count*100,
+                         popup = paste("<b>", data()$Country, "</b>",
+                                       ", number of posts: ",
+                                       "<b>", data()$Count, "</b>",
+                                       sep=""))
+      m
+    })
+  }
+)
+```
+
+Wbrew naszym podejrzeniom, wzrost ilości postów w Europie nie jest na tyle znaczny, by mógł być miarodajnym narzędziem do analizy. Przyczyną tego może być stosunkowo niewielka popularność serwisu **Stack Exchange** wśród osób szukających odpowiedzi na problemy ze zderzeniem kultur na kontynencie europejskim.
+
+
+## Travel
+Analizując forum `Travel`, zainteresowała nas informacja, które kraje były najczęściej wyszukiwane, tzn. ich nazwa pojwiła się w tytułach postów. Listę krajów, podobnie jak w przypadku forum `Christianity` pobieramy przy pomocy
+
+```{r countries}
+countries <- codelist$country.name.en
+```
+
+Napisaliśmy funkcję `visit()`, która korzystając z funkcji `stri_detect_fixed()` sprawdza, czy każdy kolejny kraj z `countries` wystąpuje w tytułach postów. Niestety musieliśmy skorzystać z R-owej pętli, co wpływa negatywnie na efektywnośc. Jednakże spójrzmy na ten fakt z innej, technicznej strony: iterujemy po 280 krajach, przy każdym obrocie sprawdzając, które z ponad 40 tysięcy obserwacji zawierają nazwę kraju, a całość zajmuje parę minut. Powstaje w ten sposób tabela `top`, zawierająca liczbę wszystkich wystąpień dla każdego kraju. Tworzymy również pomocniczą ramkę `Country`, w której znajduje się znaleziona w danym tytule nazwa kraju.
+
+```{r top, echo=FALSE}
+head(top[, c(1, 2)])
+```
+
+Otrzymane wyniki prezentujemy na mapie:
+```{r map, echo=FALSE, results='hide'}
+spdf <- joinCountryData2Map(top2, joinCode="NAME", nameJoinColumn="Country")
+
+mapCountryData(spdf, 
+               nameColumnToPlot="Value", 
+               catMethod="fixedWidth", 
+               mapTitle = "Heatmap of the most searched countries")
+```
+
+Powyższa heatmapa prezentuje wyniki zbiorcze, to znaczy łączną liczbę wyszukań 40 krajów, które pojawiały się najczęściej w pytaniach w serwisie `Travel`. 
+
+Następnie chcieliśmy dokładniej przeanalizować popularność poszczególnych krajów w różnych latach. W tym celu stworzyliśmy wykres, w którym możemy wybrać interesujący nas rok oraz ilość najpopularniejszych krajów.
+
+```{r barplot, echo=FALSE}
+shinyApp(
+  ui = fluidPage(
+    
+    theme = shinytheme("lumen"),
+    titlePanel("The most searched countries"),
+    
+    selectInput(inputId = "type_year", label = strong("Year"),
+                choices = unique(Posts3$Year),
+                selected = "2018"),
+    sliderInput(inputId = "Amount",
+                label = "Number of countries",
+                min = 1,
+                max = 20,
+                value = 10),
+    
+    plotOutput("distplot")
+  ),
+  
+  server = function(input, output) {
+    
+    Posts4 <- reactive({
+      d <- input$type_year
+      l <- input$Amount
+      s <- Posts3 %>%
+        filter(Country != -1) %>%
+        group_by(Country, Year) %>%
+        mutate(count=n()) %>%
+        filter(Year==d) %>%
+        distinct(Country, count) %>%
+        arrange(desc(count)) 
+      z <- head(s, l)
+    })
+    
+    output$distplot <- renderPlot({
+      
+      bp <- barplot(Posts4()$count, 
+                    #names.arg=Posts4()$Country,
+                    col = "#75AADB", 
+                    border = "white",
+                    xlab = "Amount of occurences",
+                    main = "Comparison of countries occurences in Titles",
+                    las=1,
+                    xpd = TRUE)
+      # text(bp, Posts4()$count*(1.05), Posts4()$count)
+      text(bp, par("usr")[3]-2, srt=45, xpd=TRUE, adj=1, labels=Posts4()$Country)
+    })
+  },
+  options=list(height=500)
+  )
+```
+
+Z powyższego wykresu wynika, że niezależnie od roku, tj. od 2011 do 2018 najczęściej pojawiającym się w tytułach postów państwem są Indie, ze znaczną przewagą nad pozostałymi. Wynikać to może z dużej popularności strony `https://stackexchange.com/` w tym kraju. Co więcej, przewaga Indii nad pozostałymi krajami na przestrzeni lat prawie cały czas rosła.
+
+Analizując popularność krajów zainteresowało nas, czy można odnotować wzrost liczby wyszukań danego kraju, związany z jakimś wydarzeniem odbywającym się w tym miejscu.
+
+Aby to sprawdzić, napisaliśmy funkcję `Changes()`, która jako argument przyjmuję nazwę kraju, a zwraca nam informację o ilości jego wyszukań w każdym roku. 
+Poniżej ilustrujemy zmiany dla trzech krajów: Polski, Peru i Rosji.
+
+```{r changes, echo=FALSE}
+Changes <- function(x){
+  Posts3 %>%
+    filter(Country != -1) %>%
+    group_by(Country, Year) %>%
+    mutate(count=n()) %>%
+    filter(Country==x) %>%
+    distinct(Country, Year, count)
+}
+
+Poland <- Changes("Poland")
+Peru <- Changes("Peru")
+Russia <- Changes("Russia")
+
+matplot(Poland$Year, 
+        cbind(Poland$count, Peru$count, Russia$count), 
+        type="l", 
+        las=1, 
+        col=c(1,2,3), 
+        lty=1,
+        ylab = "Number of posts",
+        xlab = "Year",
+        main = "Amount of posts relative to countries - changes in time")
+legend("topleft", legend=c("Poland", "Peru", "Russia"),
+       col=c(1, 2, 3), lty=1)
+```
+
+Na powyższym wykresie zilustrowane są zmiany dla Polski, Peru i Rosji. Możemy zauważyć znaczny wzrost popularności Rosji od roku 2014, co jest zapewne związane z organizowanymi w tym roku przez Rosję Igrzyskami Olimpijskimi.
+
+## Politics
+
+Polityka od zawsze wzbudza duże emocje wśród ludzi, zarówno pozytywne jak i negatywne (ze względnie znaczną przewagą tych ostatnich).
+Korzystając z danych o forum `Politics` chcieliśmy sprawdzić, czy nacechowanie emocjonalne postów wpływa w jakiś sposób na ich ocenę (`Score`).
+
+W tym przykładzie użyliśmy funkcji `sentiment_by()`, która dla każdego pytania z treści postów zwraca liczbę `ave_sentiment` z przedzaiłu [-1, 1], mówiącą o poziomie emocjonalności danej wypowiedzi. Wartość -1 oznacza wyźdżwięk całkowicie negatywny, a 1 wypowiedź w pełni pozytywną.
+
+Sprawdzamy, czy istnieje jakaś zależność między współczynnkiem `ave_sentiment`, a zmienną `Score`, czyli, czy na przykład posty, które mają nacechowanie neutralne (a zatem możliwe, że są najbardziej merytoryczne) uzyskały największę liczbę punktów. 
+
+```{r sent, echo=FALSE}
+shinyApp(
+  ui = fluidPage(
+    
+    theme = shinytheme("lumen"),
+    titlePanel("Correlation between Score and average sentiment"),
+    
+    selectInput(inputId = "type_post", label = strong("Type of posts"),
+                choices = unique(c("Questions", "Answers", "All")),
+                selected = "Questions"),
+    
+    plotOutput("distplot", height = "700")
+  ),
+  
+  server = function(input, output) {
+    
+    q <- reactive({
+      d<-input$type_post
+      if(d=="Questions") k=c(1)
+      if(d=="Answers") k=c(2)
+      if(d=="All") k=c(1, 2)
+      positive <- sent %>%
+                    arrange(desc(ave_sentiment))%>%
+                    filter(PostTypeId %in% k) 
+      positive
+    })
+    output$distplot <- renderPlot({
+      
+      plot(q()$ave_sentiment, q()$Score,
+           col = "#FF007050",
+           xlab = "Sentiment",
+           ylab = "Score",
+           main = "Correlation")
+    },
+    height = 400,
+    width = 700)
+  },
+  options=list(height=500)
+)
+
+```
+
+Wykres przedstawia zależność zmiennej `Score` od `ave_sentiment`. 
+Mamy możliwość wyboru typu postów jakie nas interesują: 
+
+- Questions
+- Answers
+- All (Questions and Answers)
+
+Jak widać najwięcej i najlepiej punktowane posty to te, które zostały ocenione jako neutralne. Skłania nas to ku refleksji, że silne nacechowanie emocjonalne nie wypława na lepszy wynik wypowiedzi.
+
+Ponadto, możemy sprawdzić, że posty o największej lub najmniejszej wartości `Score`, nie zawierają słów sklasyfikowanych jako negatywne bądź pozytywne.
+
+```{r extract_terms, echo=FALSE}
+shinyApp(
+  ui = fluidPage(
+    
+    theme = shinytheme("lumen"),
+    titlePanel("Sentiment words"),
+    
+    selectInput(inputId = "order", label = strong("Score Order"),
+                choices = c("decreasing", "increasing"),
+                selected = "decreasing"),
+    sliderInput(inputId = "Amount",
+                label = "Count of top obervations",
+                min = 1,
+                max = 20,
+                value = 10),
+    
+    tableOutput("view")
+  ),
+  
+  server = function(input, output) {
+    
+    words<-reactive({
+      n<-input$Amount
+      if(input$order=="decreasing"){
+        positive1 <- sent1 %>% arrange(desc(Score))
+      }
+      if(input$order=="increasing"){
+        positive1 <- sent1 %>% arrange(Score)
+      }
+      
+      n <- extract_sentiment_terms(get_sentences(positive1$Title))$negative
+      n1 <- lapply(n, function(txt){if(identical(txt, character(0))) 
+        return(" ")
+        else return(txt)})
+      Negative <- stri_paste_list(n1, sep=", ") 
+      
+      p <- extract_sentiment_terms(get_sentences(positive1$Title))$positive
+      p1 <- lapply(p, function(txt){if(identical(txt, character(0))) 
+        return(" ")
+        else return(txt)})
+      Positive <- stri_paste_list(p1, sep=", ") 
+      x<-cbind(Negative, Positive, Score=positive1$Score, Sentiment=positive1$ave_sentiment)
+      
+    })
+    
+    output$view <- renderTable({
+      head(words(), input$Amount, spacing = c("l"))
+    },
+    striped = TRUE,
+    bordered = TRUE,
+    width = '100%' )
+  },
+  options = list(heigth=500)
+)
+```
+
+

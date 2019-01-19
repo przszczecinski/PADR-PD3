@@ -1,0 +1,281 @@
+"Country","Number","Value"
+"India","1277",1277
+"Canada","788",788
+"Australia","542",542
+"Germany","512",512
+"Japan","479",479
+"France","438",438
+"China","388",388
+"Russia","320",320
+"Italy","299",299
+"Mexico","283",283
+"Spain","265",265
+"Singapore","206",206
+"Thailand","202",202
+"Turkey","194",194
+"Ireland","184",184
+"Oman","179",179
+"South Africa","174",174
+"Netherlands","165",165
+"Vietnam","160",160
+"Israel","156",156
+"Iran","150",150
+"Switzerland","143",143
+"New Zealand","137",137
+"Brazil","130",130
+"Romania","130",130
+"Cuba","127",127
+"Pakistan","126",126
+"Malaysia","122",122
+"Iceland","121",121
+"Georgia","120",120
+"South Korea","118",118
+"Sweden","112",112
+"Indonesia","110",110
+"United States","110",110
+"Taiwan","109",109
+"Belgium","104",104
+"Poland","104",104
+"Greece","103",103
+"Philippines","89",89
+"Croatia","88",88
+"Norway","80",80
+"Bulgaria","76",76
+"Egypt","76",76
+"Austria","71",71
+"Chile","71",71
+"Ukraine","67",67
+"Denmark","65",65
+"Morocco","64",64
+"Cambodia","63",63
+"Qatar","62",62
+"Colombia","60",60
+"Peru","60",60
+"Argentina","59",59
+"Mongolia","59",59
+"Nepal","57",57
+"Portugal","57",57
+"Finland","56",56
+"Sri Lanka","56",56
+"Cyprus","51",51
+"Kuwait","48",48
+"Hungary","46",46
+"Saudi Arabia","45",45
+"Serbia","45",45
+"Laos","42",42
+"Panama","42",42
+"Costa Rica","40",40
+"Niger","40",40
+"Kenya","39",39
+"Nigeria","39",39
+"Belarus","37",37
+"Jamaica","37",37
+"Bangladesh","35",35
+"Albania","32",32
+"Jordan","32",32
+"Macedonia","32",32
+"Ecuador","30",30
+"Bolivia","29",29
+"Iraq","28",28
+"Syria","28",28
+"Azerbaijan","24",24
+"Dominica","24",24
+"Malta","23",23
+"Ghana","22",22
+"Puerto Rico","22",22
+"Dominican Republic","20",20
+"Kazakhstan","20",20
+"Nicaragua","20",20
+"North Korea","19",19
+"United Kingdom","19",19
+"Estonia","18",18
+"Guatemala","18",18
+"Kosovo","18",18
+"Venezuela","17",17
+"Slovenia","16",16
+"Uzbekistan","16",16
+"Mali","15",15
+"Montenegro","15",15
+"Armenia","14",14
+"Jersey","14",14
+"Tanzania","14",14
+"Latvia","13",13
+"Slovakia","13",13
+"Bahamas","12",12
+"Gibraltar","12",12
+"Namibia","12",12
+"Antarctica","11",11
+"Fiji","11",11
+"Libya","11",11
+"Lithuania","11",11
+"Tunisia","11",11
+"Yemen","11",11
+"Bhutan","10",10
+"Hamburg","10",10
+"Luxembourg","10",10
+"Monaco","10",10
+"Algeria","9",9
+"Belize","9",9
+"Cape Verde","9",9
+"Ethiopia","9",9
+"Kyrgyzstan","9",9
+"Maldives","9",9
+"Nassau","9",9
+"Paraguay","9",9
+"Bahrain","8",8
+"Bavaria","8",8
+"Brunei","8",8
+"Faroe Islands","8",8
+"New Caledonia","8",8
+"Baden","7",7
+"Greenland","7",7
+"Liechtenstein","7",7
+"Mauritius","7",7
+"Uruguay","7",7
+"Zambia","7",7
+"Cayman Islands","6",6
+"Guam","6",6
+"Guinea","6",6
+"Isle of Man","6",6
+"Madagascar","6",6
+"Moldova","6",6
+"Tajikistan","6",6
+"Zimbabwe","6",6
+"Andorra","5",5
+"Angola","5",5
+"Gambia","5",5
+"Vatican City","5",5
+"Honduras","5",5
+"Lebanon","5",5
+"Senegal","5",5
+"Seychelles","5",5
+"British Virgin Islands","5",5
+"Aruba","4",4
+"Bermuda","4",4
+"Botswana","4",4
+"Hanover","4",4
+"Malawi","4",4
+"Mozambique","4",4
+"Samoa","4",4
+"Sint Maarten","4",4
+"Sudan","4",4
+"Swaziland","4",4
+"Turkmenistan","4",4
+"Uganda","4",4
+"Afghanistan","3",3
+"Barbados","3",3
+"El Salvador","3",3
+"French Guiana","3",3
+"Guyana","3",3
+"Lesotho","3",3
+"Mauritania","3",3
+"Papua New Guinea","3",3
+"Rwanda","3",3
+"Sierra Leone","3",3
+"Somalia","3",3
+"Suriname","3",3
+"Cameroon","2",2
+"Channel Islands","2",2
+"Christmas Island","2",2
+"Cook Islands","2",2
+"Czechia","2",2
+"Djibouti","2",2
+"French Polynesia","2",2
+"Gabon","2",2
+"Mayotte","2",2
+"Montserrat","2",2
+"Palau","2",2
+"St. Lucia","2",2
+"Togo","2",2
+"Tuscany","2",2
+"United Arab Emirates","2",2
+"Zanzibar","2",2
+"American Samoa","1",1
+"Burkina Faso","1",1
+"Chad","1",1
+"Falkland Islands","1",1
+"Guernsey","1",1
+"Guinea-Bissau","1",1
+"Haiti","1",1
+"Kiribati","1",1
+"Liberia","1",1
+"Marshall Islands","1",1
+"Nauru","1",1
+"Solomon Islands","1",1
+"Tonga","1",1
+"Trinidad & Tobago","1",1
+"Tuvalu","1",1
+"Yugoslavia","1",1
+"Åland Islands","0",0
+"Anguilla","0",0
+"Antigua & Barbuda","0",0
+"Austria-Hungary","0",0
+"Benin","0",0
+"Caribbean Netherlands","0",0
+"Bosnia & Herzegovina","0",0
+"Bouvet Island","0",0
+"British Indian Ocean Territory","0",0
+"Brunswick","0",0
+"Burundi","0",0
+"Central African Republic","0",0
+"Cocos (Keeling) Islands","0",0
+"Comoros","0",0
+"Congo - Brazzaville","0",0
+"Côte d’Ivoire","0",0
+"Curaçao","0",0
+"Czechoslovakia","0",0
+"Congo - Kinshasa","0",0
+"Equatorial Guinea","0",0
+"Eritrea","0",0
+"French Southern Territories","0",0
+"German Democratic Republic","0",0
+"Grenada","0",0
+"Guadeloupe","0",0
+"Heard & McDonald Islands","0",0
+"Hesse Electoral","0",0
+"Hesse Grand Ducal","0",0
+"Hesse-Darmstadt","0",0
+"Hesse-Kassel","0",0
+"Hong Kong SAR China","0",0
+"Macau SAR China","0",0
+"Martinique","0",0
+"Mecklenburg Schwerin","0",0
+"Micronesia (Federated States of)","0",0
+"Modena","0",0
+"Myanmar (Burma)","0",0
+"Netherlands Antilles","0",0
+"Niue","0",0
+"Norfolk Island","0",0
+"Northern Mariana Islands","0",0
+"Oldenburg","0",0
+"Palestinian Territories","0",0
+"Parma","0",0
+"Piedmont-Sardinia","0",0
+"Pitcairn Islands","0",0
+"Réunion","0",0
+"St. Barthélemy","0",0
+"St. Helena","0",0
+"St. Kitts & Nevis","0",0
+"Saint Martin (French part)","0",0
+"St. Pierre & Miquelon","0",0
+"St. Vincent & Grenadines","0",0
+"San Marino","0",0
+"São Tomé & Príncipe","0",0
+"Saxe-Weimar-Eisenach","0",0
+"Saxony","0",0
+"South Georgia & South Sandwich Islands","0",0
+"South Sudan","0",0
+"Svalbard & Jan Mayen","0",0
+"Timor-Leste","0",0
+"Tokelau","0",0
+"Turks & Caicos Islands","0",0
+"Two Sicilies","0",0
+"United States Minor Outlying Islands (the)","0",0
+"Vanuatu","0",0
+"U.S. Virgin Islands","0",0
+"Wallis & Futuna","0",0
+"Western Sahara","0",0
+"Wuerttemburg","0",0
+"Würtemberg","0",0
+"Yemen Arab Republic","0",0
+"Yemen People's Republic","0",0
